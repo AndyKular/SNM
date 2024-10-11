@@ -4,3 +4,4 @@ fpdf
 barcode
 pillow
 werkzeug
+setuptools
