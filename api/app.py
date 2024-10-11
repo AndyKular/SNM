@@ -9,7 +9,7 @@ from fpdf import FPDF
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = tempfile.gettempdir()
+app.config['UPLOAD_FOLDER'] = tempfile.gettempdir() or "/tmp"
 
 # Function to sanitize UPC codes, handling NaN values and non-numeric data
 def sanitize_upc(upc):
@@ -48,8 +48,13 @@ def generate():
 
     filename = secure_filename(file.filename)
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    file.save(file_path)
-    print(f"File saved at: {file_path}")
+
+    # Save the uploaded file
+    try:
+        file.save(file_path)
+        print(f"File saved at: {file_path}")
+    except Exception as e:
+        return redirect(url_for('upload_file', error=f"Error saving file: {e}"))
 
     # Try to read the file and check if the necessary column exists
     try:
@@ -93,29 +98,36 @@ def generate():
                 return redirect(url_for('upload_file', error=f"Error generating barcode for {upc}: {e}"))
 
     # Create a PDF from the generated barcode images
-    pdf = FPDF()
-    pdf.set_auto_page_break(auto=True, margin=15)
-    images_per_row, images_per_col = 2, 3
-    image_width, image_height, margin = 80, 60, 10
+    try:
+        pdf = FPDF()
+        pdf.set_auto_page_break(auto=True, margin=15)
+        images_per_row, images_per_col = 2, 3
+        image_width, image_height, margin = 80, 60, 10
 
-    for i, image_file in enumerate(generated_files):
-        if i % (images_per_row * images_per_col) == 0:
-            pdf.add_page()
-        row, col = divmod(i % (images_per_row * images_per_col), images_per_row)
-        x, y = margin + col * (image_width + margin), margin + row * (image_height + margin)
-        pdf.image(image_file, x, y, w=image_width, h=image_height)
+        for i, image_file in enumerate(generated_files):
+            if i % (images_per_row * images_per_col) == 0:
+                pdf.add_page()
+            row, col = divmod(i % (images_per_row * images_per_col), images_per_row)
+            x, y = margin + col * (image_width + margin), margin + row * (image_height + margin)
+            pdf.image(image_file, x, y, w=image_width, h=image_height)
 
-    pdf_output_path = os.path.join(app.config['UPLOAD_FOLDER'], "barcodes.pdf")
-    pdf.output(pdf_output_path)
+        pdf_output_path = os.path.join(app.config['UPLOAD_FOLDER'], "barcodes.pdf")
+        pdf.output(pdf_output_path)
+    except Exception as e:
+        return redirect(url_for('upload_file', error=f"Error creating PDF: {e}"))
 
     # Clean up uploaded and temporary files
-    os.remove(file_path)
-    for f in generated_files:
-        os.remove(f)
+    try:
+        os.remove(file_path)
+        for f in generated_files:
+            os.remove(f)
+    except Exception as e:
+        print(f"Error cleaning up files: {e}")
 
     # Automatically send the PDF for download
-    return send_file(pdf_output_path, as_attachment=True, download_name="barcodes.pdf")
+    try:
+        return send_file(pdf_output_path, as_attachment=True, download_name="barcodes.pdf")
+    except Exception as e:
+        return redirect(url_for('upload_file', error=f"Error sending PDF file: {e}"))
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080, debug=True)
-
+# No need for app.run() as Vercel manages the server
