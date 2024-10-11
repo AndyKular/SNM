@@ -1,7 +1,7 @@
+setuptools==65.5.1
 Flask
 pandas
 fpdf
 barcode
 pillow
 werkzeug
-setuptools
