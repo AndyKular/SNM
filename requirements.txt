@@ -6,3 +6,4 @@ python-barcode
 pillow
 werkzeug
 setuptools
+openpyxl
