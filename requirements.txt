@@ -2,7 +2,7 @@ Flask
 gunicorn
 pandas
 fpdf
-barcode
+python-barcode
 pillow
 werkzeug
 setuptools
