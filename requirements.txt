@@ -1,7 +1,8 @@
-setuptools==65.5.1
 Flask
+gunicorn
 pandas
 fpdf
 barcode
 pillow
 werkzeug
+setuptools
