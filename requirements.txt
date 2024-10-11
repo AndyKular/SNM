@@ -1,0 +1,6 @@
+Flask
+pandas
+fpdf
+barcode
+pillow
+werkzeug
