@@ -1,1 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate System No Match Barcodes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Add some styling to center the logo */
+        .logo {
+            display: block;
+            margin: 0 auto;
+            max-width: 300px; /* Adjust as necessary */
+            padding-bottom: 1rem;
+        }
+        /* Add space between buttons */
+        .custom-file-upload, .generate-button {
+            margin: 0.5rem 0;
+        }
+        /* Style for the file name display */
+        #file-name {
+            font-style: italic;
+            color: #555;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+    <script>
+        function updateFileName() {
+            const fileInput = document.getElementById("file-upload");
+            const fileNameDisplay = document.getElementById("file-name");
+            fileNameDisplay.textContent = fileInput.files[0] ? `Selected file: ${fileInput.files[0].name}` : "";
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            document.getElementById("upload-form").style.display = "none";
+            document.getElementById("processing-message").style.display = "block";
+
+            const formData = new FormData(event.target);
+
+            // Send form data to /generate and wait for response
+            const response = await fetch('/generate', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                // Automatically download the generated PDF
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "barcodes.pdf"; // Automatically start download
+                a.click();
+                window.URL.revokeObjectURL(url);
+
+                // Reset UI for next use
+                setTimeout(() => {
+                    document.getElementById("processing-message").style.display = "none";
+                    document.getElementById("upload-form").style.display = "block";
+                    document.getElementById("file-name").textContent = ""; // Clear file name display
+                }, 1000);
+            } else {
+                document.getElementById("processing-message").style.display = "none";
+                document.getElementById("upload-form").style.display = "block";
+                alert("Error generating PDF. Please try again.");
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <!-- Logo added here -->
+        <img src="{{ url_for('static', filename='IMG_7868.png') }}" alt="Real Canadian Superstore Logo" class="logo">
+
+        <h1>Generate System No Match Barcodes</h1>
+        <p>Upload ST-12 excel file to create barcodes and download them as a PDF.</p>
+
+        <form id="upload-form" onsubmit="handleFormSubmit(event)">
+            <label for="file-upload" class="custom-file-upload">
+                Upload File
+            </label>
+            <input type="file" id="file-upload" name="file" accept=".xlsx" required onchange="updateFileName()">
+            <p id="file-name"></p> <!-- Display file name here -->
+            <button type="submit" class="generate-button">Generate Barcodes</button>
+        </form>
+
+        <!-- Processing message -->
+        <div id="processing-message" style="display: none;">
+            <p>Processing your file. Please wait...</p>
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>
 
