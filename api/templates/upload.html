@@ -3,27 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generate System No Match Barcodes</title>
-    <style>
-        /* Center the logo */
-        .logo {
-            display: block;
-            margin: 0 auto;
-            max-width: 300px;
-            padding-bottom: 1rem;
-        }
-        /* Add space between buttons */
-        .custom-file-upload, .generate-button {
-            margin: 0.5rem 0;
-        }
-        /* Style for the file name display */
-        #file-name {
-            font-style: italic;
-            color: #555;
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-        }
-    </style>
+    <title>Generate Barcodes</title>
+    <link rel="stylesheet" href="/static/style.css">
     <script>
         function updateFileName() {
             const fileInput = document.getElementById("file-upload");
@@ -53,7 +34,6 @@
                     a.click();
                     window.URL.revokeObjectURL(url);
 
-                    // Reset the UI
                     document.getElementById("processing-message").style.display = "none";
                     document.getElementById("upload-form").style.display = "block";
                     document.getElementById("file-name").textContent = "";
@@ -63,9 +43,6 @@
                 }
             } catch (error) {
                 alert(`Unexpected error: ${error.message}`);
-            } finally {
-                document.getElementById("processing-message").style.display = "none";
-                document.getElementById("upload-form").style.display = "block";
             }
         }
     </script>
@@ -73,18 +50,13 @@
 <body>
     <div class="container">
         <img src="/static/IMG_7868.png" alt="Logo" class="logo">
-        <h1>Generate System No Match Barcodes</h1>
-        <p>Upload your Excel file to generate barcodes and download them as a PDF.</p>
-
+        <h1>Generate System Barcodes</h1>
         <form id="upload-form" onsubmit="handleFormSubmit(event)">
-            <label for="file-upload" class="custom-file-upload">
-                Upload File
-            </label>
+            <label for="file-upload">Upload Excel File</label>
             <input type="file" id="file-upload" name="file" accept=".xlsx" required onchange="updateFileName()">
             <p id="file-name"></p>
-            <button type="submit" class="generate-button">Generate Barcodes</button>
+            <button type="submit">Generate</button>
         </form>
-
         <div id="processing-message" style="display: none;">
             <p>Processing your file. Please wait...</p>
         </div>
