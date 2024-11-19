@@ -58,7 +58,7 @@ def generate():
 
     # Try to read the file and check if the necessary column exists
     try:
-        df = pd.read_excel(file_path, sheet_name=0)
+        df = pd.read_excel(file_path, sheet_name=0, skiprows=10)
         if "Unnamed: 13" not in df.columns:
             return redirect(url_for('upload_file', error="'Unnamed: 13' column not found in the uploaded file."))
         df = df[["Unnamed: 13"]]  # Select only the needed column
