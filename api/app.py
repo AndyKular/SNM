@@ -102,14 +102,24 @@ def generate():
         pdf = FPDF()
         pdf.set_auto_page_break(auto=True, margin=15)
         images_per_row, images_per_col = 2, 3
-        image_width, image_height, margin = 80, 60, 10
+        image_width, image_height, margin = 75, 50, 5  # Adjust dimensions if needed
 
         for i, image_file in enumerate(generated_files):
+            # Validate image file existence
+            if not os.path.exists(image_file):
+                print(f"Warning: Missing file {image_file}")
+                continue
+
             if i % (images_per_row * images_per_col) == 0:
                 pdf.add_page()
             row, col = divmod(i % (images_per_row * images_per_col), images_per_row)
             x, y = margin + col * (image_width + margin), margin + row * (image_height + margin)
-            pdf.image(image_file, x, y, w=image_width, h=image_height)
+
+            # Add image to PDF
+            try:
+                pdf.image(image_file, x, y, w=image_width, h=image_height)
+            except Exception as e:
+                print(f"Error adding image {image_file}: {e}")
 
         pdf_output_path = os.path.join(app.config['UPLOAD_FOLDER'], "barcodes.pdf")
         pdf.output(pdf_output_path)
