@@ -1,16 +1,10 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/app.py",
-      "use": "@vercel/python",
-      "config": { "runtime": "python3.9" }
-    },
-    {
-      "src": "api/static/**/*",
-      "use": "@vercel/static"
+  "functions": {
+    "api/app.py": {
+      "runtime": "python3.9"
     }
-  ],
+  },
   "routes": [
     {
       "src": "/static/(.*)",
