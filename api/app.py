@@ -67,6 +67,8 @@ def generate():
         # Generate barcodes and add to PDF
         temp_dir = tempfile.mkdtemp()
         os.makedirs(temp_dir, exist_ok=True)  # Ensure temp_dir exists
+        print(f"Temporary directory created at: {temp_dir}")  # Debugging line
+
         pdf = FPDF()
         pdf.set_auto_page_break(auto=True, margin=15)
         images_per_row, images_per_col = 2, 3
@@ -81,8 +83,15 @@ def generate():
                 barcode_class = barcode.get_barcode_class('upca' if len(upc) == 12 else 'ean13')
                 upc_barcode = barcode_class(upc, writer=ImageWriter())
                 barcode_path = os.path.join(temp_dir, f"{upc}.png")
-                upc_barcode.save(barcode_path)
-                print(f"Generated barcode saved at: {barcode_path}")  # Debugging line
+                print(f"Attempting to save barcode to: {barcode_path}")  # Debugging line
+
+                # Ensure the save works
+                try:
+                    upc_barcode.save(barcode_path.split('.png')[0])
+                    print(f"Barcode saved for {upc} at {barcode_path}")  # Debugging line
+                except Exception as e:
+                    print(f"Error saving barcode for {upc}: {str(e)}")
+                    return f"Error saving barcode for {upc}: {str(e)}", 500
 
                 # Add barcode to PDF
                 if i % (images_per_row * images_per_col) == 0:
@@ -102,6 +111,7 @@ def generate():
         return send_file(pdf_path, as_attachment=True, download_name="barcodes.pdf")
 
     except Exception as e:
+        print(f"Error during processing: {str(e)}")  # Debugging line
         return f"Error: {str(e)}", 500
 
 if __name__ == "__main__":
