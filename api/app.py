@@ -120,10 +120,13 @@ def generate():
                 pdf.image(image_file, x, y, w=image_width, h=image_height)
             except Exception as e:
                 print(f"Error adding image {image_file}: {e}")
+                continue
 
         pdf_output_path = os.path.join(app.config['UPLOAD_FOLDER'], "barcodes.pdf")
         pdf.output(pdf_output_path)
+        print(f"PDF saved at: {pdf_output_path}")  # Debugging statement
     except Exception as e:
+        print(f"Error creating PDF: {e}")  # Debugging statement
         return redirect(url_for('upload_file', error=f"Error creating PDF: {e}"))
 
     # Clean up uploaded and temporary files
